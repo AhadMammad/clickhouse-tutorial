@@ -364,6 +364,13 @@ init-user: ## Interactive setup: prompt for config values, auto-detect available
 			"HDFS_PORT=$$hdfs_port" \
 			"HDFS_USER=root" \
 			"HDFS_BASE_PATH=/data/app_interactions" \
+			"" \
+			"# HDFS container config (consumed by bde2020 namenode/datanode entrypoint)" \
+			"CORE_CONF_fs_defaultFS=hdfs://namenode:9000" \
+			"CORE_CONF_hadoop_http_staticuser_user=root" \
+			"HDFS_CONF_dfs_replication=1" \
+			"HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check=false" \
+			"HDFS_CONF_dfs_permissions_enabled=false" \
 			> .env.local; \
 		echo ""; \
 		echo "$(GREEN)Created .env.local$(RESET)"; \
