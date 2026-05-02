@@ -1,0 +1,76 @@
+# duration_seconds is intentionally NOT stored — it is derived from session_end - session_start.
+# country_code here represents session location (user may travel; differs from home country).
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-sessions
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: sessions
+            columns:
+              - column:
+                  name: session_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_sessions
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_sessions_user
+                    references: users(user_id)
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_sessions_device
+                    references: devices(device_id)
+              - column:
+                  name: version_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_sessions_version
+                    references: app_versions(version_id)
+              - column:
+                  name: session_start
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: session_end
+                  type: TIMESTAMP
+              - column:
+                  name: ip_address
+                  type: INET
+              - column:
+                  name: country_code
+                  type: CHAR(2)
+        - createIndex:
+            tableName: sessions
+            indexName: idx_sessions_user_id
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            tableName: sessions
+            indexName: idx_sessions_start
+            columns:
+              - column:
+                  name: session_start
+        - createIndex:
+            tableName: sessions
+            indexName: idx_sessions_device_id
+            columns:
+              - column:
+                  name: device_id
+        - createIndex:
+            tableName: sessions
+            indexName: idx_sessions_version_id
+            columns:
+              - column:
+                  name: version_id

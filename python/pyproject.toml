@@ -21,6 +21,9 @@ dependencies = [
     "python-dotenv",
     "tabulate",
     "pydantic",
+    "psycopg2-binary>=2.9",
+    "pyarrow>=14.0",
+    "hdfs>=2.7",
 ]
 
 [project.optional-dependencies]
@@ -76,6 +79,12 @@ module = [
     "clickhouse_connect.*",
     "faker",
     "faker.*",
+    "psycopg2",
+    "psycopg2.*",
+    "hdfs",
+    "hdfs.*",
+    "pyarrow",
+    "pyarrow.*",
 ]
 ignore_missing_imports = true
 

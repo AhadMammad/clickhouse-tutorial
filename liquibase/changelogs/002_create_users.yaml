@@ -1,0 +1,46 @@
+# country_code is intentionally NOT on users — it belongs to sessions (session context).
+# tier_id FK to user_tiers — 3NF compliant (no transitive dependency).
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-users
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_users
+              - column:
+                  name: external_user_id
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_users_external_id
+              - column:
+                  name: username
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_users_email
+              - column:
+                  name: tier_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_users_tier
+                    references: user_tiers(tier_id)
+              - column:
+                  name: registered_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()

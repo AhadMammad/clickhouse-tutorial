@@ -41,6 +41,9 @@ RUN groupadd --gid 1000 appuser && \
 # Copy virtualenv from builder stage
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+# Source at /app/src takes priority over the installed package, so volume-mounted
+# local code changes are reflected immediately without rebuilding the image.
+ENV PYTHONPATH=/app/src
 
 # Copy application source code
 COPY . /app

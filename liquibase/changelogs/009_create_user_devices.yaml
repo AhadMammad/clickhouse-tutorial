@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-user-devices
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: user_devices
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ud_user
+                    references: users(user_id)
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ud_device
+                    references: devices(device_id)
+              - column:
+                  name: first_seen
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_seen
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: user_devices
+            columnNames: user_id, device_id
+            constraintName: pk_user_devices

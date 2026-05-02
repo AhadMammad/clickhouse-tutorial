@@ -18,6 +18,77 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${PG_USER:-pguser}
+      - POSTGRES_PASSWORD=${PG_PASSWORD:-pgpassword}
+      - POSTGRES_DB=${PG_DATABASE:-appdb}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-pguser} -d ${PG_DATABASE:-appdb}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  liquibase:
+    image: liquibase/liquibase:4.27
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - LIQUIBASE_COMMAND_URL=jdbc:postgresql://postgres:5432/${PG_DATABASE:-appdb}
+      - LIQUIBASE_COMMAND_USERNAME=${PG_USER:-pguser}
+      - LIQUIBASE_COMMAND_PASSWORD=${PG_PASSWORD:-pgpassword}
+      - LIQUIBASE_COMMAND_CHANGELOG_FILE=changelogs/db.changelog-master.yaml
+      - LIQUIBASE_SEARCH_PATH=/liquibase/changelog
+    volumes:
+      - ./liquibase:/liquibase/changelog
+    command: update
+    profiles:
+      - migrate
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    ports:
+      - "${HDFS_PORT:-9870}:9870"
+    environment:
+      - CLUSTER_NAME=bootcamp
+      - CORE_CONF_fs_defaultFS=${CORE_CONF_fs_defaultFS}
+      - CORE_CONF_hadoop_http_staticuser_user=${CORE_CONF_hadoop_http_staticuser_user}
+      - HDFS_CONF_dfs_replication=${HDFS_CONF_dfs_replication}
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check=${HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check}
+      - HDFS_CONF_dfs_permissions_enabled=${HDFS_CONF_dfs_permissions_enabled}
+    volumes:
+      - hdfs-namenode:/hadoop/dfs/name
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    depends_on:
+      namenode:
+        condition: service_healthy
+    environment:
+      - CORE_CONF_fs_defaultFS=${CORE_CONF_fs_defaultFS}
+      - CORE_CONF_hadoop_http_staticuser_user=${CORE_CONF_hadoop_http_staticuser_user}
+      - HDFS_CONF_dfs_replication=${HDFS_CONF_dfs_replication}
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check=${HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check}
+      - HDFS_CONF_dfs_permissions_enabled=${HDFS_CONF_dfs_permissions_enabled}
+    volumes:
+      - hdfs-datanode:/hadoop/dfs/data
+    restart: unless-stopped
+
   app:
     build:
       context: ./python
@@ -26,17 +97,34 @@ services:
     depends_on:
       clickhouse:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
       - CLICKHOUSE_HOST=clickhouse
       - CLICKHOUSE_PORT=8123
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
       - CLICKHOUSE_DATABASE=${CLICKHOUSE_DATABASE}
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_USER=${PG_USER:-pguser}
+      - PG_PASSWORD=${PG_PASSWORD:-pgpassword}
+      - PG_DATABASE=${PG_DATABASE:-appdb}
+      - HDFS_HOST=namenode
+      - HDFS_PORT=9870
+      - HDFS_USER=root
+      - HDFS_BASE_PATH=/data/app_interactions
     volumes:
       - ./python:/app
       - ./sql:/sql
+      - ./sql_star:/sql_star
       - /app/__pycache__
     profiles:
       - app
     command: ["python", "main.py", "demo"]
     restart: "no"
+
+volumes:
+  pg-data:
+  hdfs-namenode:
+  hdfs-datanode:

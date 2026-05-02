@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-events
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: events
+            columns:
+              - column:
+                  name: event_id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_events
+              - column:
+                  name: session_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_events_session
+                    references: sessions(session_id)
+              - column:
+                  name: screen_id
+                  type: INTEGER
+                  constraints:
+                    foreignKeyName: fk_events_screen
+                    references: screens(screen_id)
+              - column:
+                  name: event_type_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_events_type
+                    references: event_types(event_type_id)
+              - column:
+                  name: event_timestamp
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sequence_number
+                  type: INTEGER
+              - column:
+                  name: duration_ms
+                  type: INTEGER
+              - column:
+                  name: properties
+                  type: JSONB
+                  defaultValue: '{}'
+        - createIndex:
+            tableName: events
+            indexName: idx_events_session_id
+            columns:
+              - column:
+                  name: session_id
+        - createIndex:
+            tableName: events
+            indexName: idx_events_timestamp
+            columns:
+              - column:
+                  name: event_timestamp
+        - createIndex:
+            tableName: events
+            indexName: idx_events_type_id
+            columns:
+              - column:
+                  name: event_type_id
+        - createIndex:
+            tableName: events
+            indexName: idx_events_screen_id
+            columns:
+              - column:
+                  name: screen_id

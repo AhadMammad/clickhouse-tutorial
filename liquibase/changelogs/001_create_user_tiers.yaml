@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-enable-pgcrypto
+      author: bootcamp
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+  - changeSet:
+      id: 001-create-user-tiers
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: user_tiers
+            columns:
+              - column:
+                  name: tier_id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_tiers
+              - column:
+                  name: tier_name
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_user_tiers_name
+              - column:
+                  name: max_monthly_events
+                  type: INTEGER
+              - column:
+                  name: description
+                  type: TEXT
+
+  - changeSet:
+      id: 001-seed-user-tiers
+      author: bootcamp
+      changes:
+        - insert:
+            tableName: user_tiers
+            columns:
+              - column:
+                  name: tier_name
+                  value: free
+              - column:
+                  name: max_monthly_events
+                  valueNumeric: 1000
+              - column:
+                  name: description
+                  value: Free tier with basic features
+        - insert:
+            tableName: user_tiers
+            columns:
+              - column:
+                  name: tier_name
+                  value: standard
+              - column:
+                  name: max_monthly_events
+                  valueNumeric: 10000
+              - column:
+                  name: description
+                  value: Standard tier with extended features
+        - insert:
+            tableName: user_tiers
+            columns:
+              - column:
+                  name: tier_name
+                  value: premium
+              - column:
+                  name: max_monthly_events
+                  valueNumeric: -1
+              - column:
+                  name: description
+                  value: Premium tier with unlimited access

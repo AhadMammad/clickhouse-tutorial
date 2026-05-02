@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-event-types
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: event_types
+            columns:
+              - column:
+                  name: event_type_id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_event_types
+              - column:
+                  name: event_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_event_types_name
+              - column:
+                  name: event_category
+                  type: VARCHAR(50)
+              - column:
+                  name: description
+                  type: TEXT

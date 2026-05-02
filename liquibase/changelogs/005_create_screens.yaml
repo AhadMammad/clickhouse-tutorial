@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-screens
+      author: bootcamp
+      changes:
+        - createTable:
+            tableName: screens
+            columns:
+              - column:
+                  name: screen_id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_screens
+              - column:
+                  name: screen_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_screens_name
+              - column:
+                  name: screen_category
+                  type: VARCHAR(50)
+              - column:
+                  name: description
+                  type: TEXT

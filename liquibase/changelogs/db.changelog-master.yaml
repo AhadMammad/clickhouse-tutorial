@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - include:
+      file: changelogs/001_create_user_tiers.yaml
+  - include:
+      file: changelogs/002_create_users.yaml
+  - include:
+      file: changelogs/003_create_devices.yaml
+  - include:
+      file: changelogs/004_create_app_versions.yaml
+  - include:
+      file: changelogs/005_create_screens.yaml
+  - include:
+      file: changelogs/006_create_event_types.yaml
+  - include:
+      file: changelogs/007_create_sessions.yaml
+  - include:
+      file: changelogs/008_create_events.yaml
+  - include:
+      file: changelogs/009_create_user_devices.yaml
